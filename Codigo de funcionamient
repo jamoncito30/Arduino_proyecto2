@@ -1,0 +1,58 @@
+// Definición de pines
+const int tempPin = A0;         // Pin del sensor de temperatura (TMP36)
+const int lightPin = A1;        // Pin del detector de luz (LDR)
+const int ledVerdePin = 5;     // Pin del LED verde
+const int ledRojoPin = 6;       // Pin del LED rojo
+const int buzzerPin = 4;        // Pin del buzzer
+const int motorPin1 = 8;       // Pin 1 del puente H para el motor
+const int motorPin2 = 9;       // Pin 2 del puente H para el motor
+
+void setup() {
+  // Configurar pines como salidas
+  pinMode(ledVerdePin, OUTPUT);
+  pinMode(ledRojoPin, OUTPUT);
+  pinMode(buzzerPin, INPUT);
+  pinMode(motorPin1, OUTPUT);
+  pinMode(motorPin2, OUTPUT);
+  
+  Serial.begin(9600); // Iniciar comunicación serial (opcional, para debugging)
+}
+
+void loop() {
+  // Leer la temperatura desde el TMP36
+  int tempValue = analogRead(tempPin);
+  Serial.println(tempPin); 
+   Serial.print("     ");
+  float voltage = tempValue * (5.0 / 1023.0); 
+  float temperature = (voltage - 0.5) * 100; // Convertir a grados Celsius (TMP36)
+
+  // Leer la luz desde el LDR
+  int lightValue = analogRead(lightPin);
+  Serial.println(lightValue); 
+  // Condiciones para encender el motor y el LED verde
+  if (temperature > 4 && temperature < 40 && lightValue > 512) {
+    digitalWrite(motorPin1, HIGH);
+    digitalWrite(motorPin2, LOW);  // Ajustar según el puente H
+    digitalWrite(ledVerdePin, HIGH);
+    digitalWrite(ledRojoPin, LOW);
+    digitalWrite(buzzerPin, LOW);
+  } else {
+    digitalWrite(motorPin1, LOW);
+    digitalWrite(motorPin2, LOW); // Asegurar que el motor esté apagado
+    
+    // Encender el LED rojo si la temperatura no está en el rango
+    if (temperature <= 4 || temperature >= 40) {
+      digitalWrite(ledRojoPin, HIGH);
+      digitalWrite(ledVerdePin, LOW);
+      digitalWrite(buzzerPin, LOW);
+    } 
+    
+    if (lightValue <= 512) {
+       tone(buzzerPin, 1000);
+      digitalWrite(ledRojoPin, LOW); 
+      digitalWrite(ledVerdePin, LOW);
+    }
+  }
+
+  delay(100); // Pequeño retraso para estabilizar
+}
