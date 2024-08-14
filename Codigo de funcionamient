@@ -56,3 +56,5 @@ void loop() {
 
   delay(100); // Pequeño retraso para estabilizar
 }
+
+//Codigo creado para uso universitario (UDD)
